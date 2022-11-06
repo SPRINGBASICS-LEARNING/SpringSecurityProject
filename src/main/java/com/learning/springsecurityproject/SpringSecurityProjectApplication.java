@@ -1,4 +1,4 @@
-package com.learning.SpringSecurityProject;
+package com.learning.springsecurityproject;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
