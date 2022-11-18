@@ -19,9 +19,9 @@ public class ProjectSecurityConfig {
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests()
+        http.csrf().disable().authorizeHttpRequests()
                                     .antMatchers("/myAccount", "/myBalance", "/myLoans", "/myCards").authenticated()
-                                    .antMatchers("/notices","contact").permitAll()
+                                    .antMatchers("/notices","contact", "/register").permitAll()
  //               .anyRequest().denyAll()
                                     .and().formLogin()
                                     .and().httpBasic();
@@ -60,10 +60,10 @@ public class ProjectSecurityConfig {
         return new InMemoryUserDetailsManager(admin,user);
     } */
 
-    @Bean
-    public UserDetailsService userDetailsService(DataSource dataSource) {
-        return new JdbcUserDetailsManager(dataSource);
-    }
+//    @Bean
+//    public UserDetailsService userDetailsService(DataSource dataSource) {
+//        return new JdbcUserDetailsManager(dataSource);
+//    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
