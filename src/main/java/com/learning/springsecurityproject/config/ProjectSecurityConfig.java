@@ -3,6 +3,7 @@ package com.learning.springsecurityproject.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -37,10 +38,14 @@ public class ProjectSecurityConfig {
                 return config;
             }
         }).and()
-                .csrf().ignoringAntMatchers("/contact", "/register").csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .csrf().ignoringAntMatchers("/contact", "/register", "/h2-console/**").csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .and().authorizeHttpRequests()
-                                    .antMatchers("/myAccount", "/myBalance", "/myLoans", "/myCards", "/user").authenticated()
-                                    .antMatchers("/notices","contact", "/register").permitAll()
+                                    .antMatchers("/myAccount").hasAuthority("VIEWACCOUNT")
+                                    .antMatchers("/myBalance").hasAnyAuthority("VIEWACCOUNT", "VIEWBALANCE")
+                                    .antMatchers("/myLoans").hasAuthority("VIEWLOANS")
+                                    .antMatchers("/myCards").hasAuthority("VIEWCARDSBALANCE")
+                                    .antMatchers("/user").authenticated()
+                                    .antMatchers("/notices","/contact", "/register", "/h2-console/**").permitAll()
  //               .anyRequest().denyAll()
                                     .and().formLogin()
                                     .and().httpBasic();
