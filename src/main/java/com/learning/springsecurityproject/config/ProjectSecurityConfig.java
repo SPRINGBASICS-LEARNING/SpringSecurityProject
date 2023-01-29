@@ -1,6 +1,7 @@
 package com.learning.springsecurityproject.config;
 
 import com.learning.springsecurityproject.filter.AuthoritiesLoggingAfterFilter;
+import com.learning.springsecurityproject.filter.AuthoritiesLoggingAtFilter;
 import com.learning.springsecurityproject.filter.RequestValidationBeforeFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,6 +44,7 @@ public class ProjectSecurityConfig {
         }).and()
                 .csrf().ignoringAntMatchers("/contact", "/register", "/h2-console/**").csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .and().addFilterBefore(new RequestValidationBeforeFilter(), BasicAuthenticationFilter.class)
+                .addFilterAt(new AuthoritiesLoggingAtFilter(), BasicAuthenticationFilter.class)
                 .addFilterAfter(new AuthoritiesLoggingAfterFilter(), BasicAuthenticationFilter.class)
                 .authorizeHttpRequests()
                                     .antMatchers("/myAccount").hasRole("USER")
