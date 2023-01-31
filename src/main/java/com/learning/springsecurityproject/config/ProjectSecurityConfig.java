@@ -1,9 +1,6 @@
 package com.learning.springsecurityproject.config;
 
-import com.learning.springsecurityproject.filter.AuthoritiesLoggingAfterFilter;
-import com.learning.springsecurityproject.filter.AuthoritiesLoggingAtFilter;
-import com.learning.springsecurityproject.filter.JWTTokenGenerationFilter;
-import com.learning.springsecurityproject.filter.RequestValidationBeforeFilter;
+import com.learning.springsecurityproject.filter.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -52,6 +49,7 @@ public class ProjectSecurityConfig {
                 .addFilterAt(new AuthoritiesLoggingAtFilter(), BasicAuthenticationFilter.class)
                 .addFilterAfter(new AuthoritiesLoggingAfterFilter(), BasicAuthenticationFilter.class)
                 .addFilterAfter(new JWTTokenGenerationFilter(), BasicAuthenticationFilter.class)
+                .addFilterBefore(new JWTTokenValidationFilter(), BasicAuthenticationFilter.class)
                 .authorizeHttpRequests()
                                     .antMatchers("/myAccount").hasRole("USER")
                                     .antMatchers("/myBalance").hasAnyRole("USER", "ADMIN")
