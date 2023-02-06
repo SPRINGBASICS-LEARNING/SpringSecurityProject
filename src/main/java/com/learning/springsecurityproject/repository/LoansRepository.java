@@ -10,6 +10,5 @@ import java.util.List;
 @Repository
 public interface LoansRepository extends CrudRepository<Loans, Long> {
 
-    @PreAuthorize("hasRole('ROOT')")
     List<Loans> findByCustomerIdOrderByStartDtDesc(int customerId);
 }
