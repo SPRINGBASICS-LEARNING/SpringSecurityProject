@@ -3,6 +3,7 @@ package com.learning.springsecurityproject.controller;
 import com.learning.springsecurityproject.model.Contact;
 import com.learning.springsecurityproject.repository.ContactRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +22,8 @@ public class ContactController {
     private ContactRepository contactRepository;
 
     @PostMapping("/contact")
-    @PreFilter("filterObject.contactName != 'Test'")
+   // @PreFilter("filterObject.contactName != 'Test'")
+    @PostFilter("filterObject.contactName != 'Test'")
     public List<Contact> saveContactInquiryDetails(@RequestBody List<Contact> contacts) {
         Contact contact = contacts.get(0);
         contact.setContactId(getServiceReqNumber());
