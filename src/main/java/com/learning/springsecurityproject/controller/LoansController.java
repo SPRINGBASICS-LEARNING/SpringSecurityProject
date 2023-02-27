@@ -1,6 +1,8 @@
 package com.learning.springsecurityproject.controller;
 
+import com.learning.springsecurityproject.model.Customer;
 import com.learning.springsecurityproject.model.Loans;
+import com.learning.springsecurityproject.repository.CustomerRepository;
 import com.learning.springsecurityproject.repository.LoansRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PostAuthorize;
@@ -16,14 +18,19 @@ public class LoansController {
     @Autowired
     private LoansRepository loansRepository;
 
+    @Autowired
+    private CustomerRepository customerRepository;
+
     @GetMapping("/myLoans")
     @PostAuthorize("hasRole('ROOT')")
-    public List<Loans> getLoanDetails(@RequestParam int id) {
-        List<Loans> loans = loansRepository.findByCustomerIdOrderByStartDtDesc(id);
-        if (loans != null ) {
-            return loans;
-        }else {
-            return null;
+    public List<Loans> getLoanDetails(@RequestParam String email) {
+        List<Customer> customers = customerRepository.findByEmail(email);
+        if(customers!=null && !customers.isEmpty()) {
+            List<Loans> loans = loansRepository.findByCustomerIdOrderByStartDtDesc(customers.get(0).getId());
+            if (loans != null ) {
+                return loans;
+            }
         }
+            return null;
     }
 }

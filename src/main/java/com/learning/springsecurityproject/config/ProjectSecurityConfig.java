@@ -1,27 +1,16 @@
 package com.learning.springsecurityproject.config;
 
-import com.learning.springsecurityproject.filter.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.security.provisioning.JdbcUserDetailsManager;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -30,6 +19,10 @@ public class ProjectSecurityConfig {
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new KeyCloakRoleConverter());
+
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .cors().configurationSource(new CorsConfigurationSource() {
             @Override
@@ -44,12 +37,9 @@ public class ProjectSecurityConfig {
                 return config;
             }
         }).and()
-                .csrf().ignoringAntMatchers("/contact", "/register", "/h2-console/**").csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .and().addFilterBefore(new RequestValidationBeforeFilter(), BasicAuthenticationFilter.class)
-                .addFilterAt(new AuthoritiesLoggingAtFilter(), BasicAuthenticationFilter.class)
-                .addFilterAfter(new AuthoritiesLoggingAfterFilter(), BasicAuthenticationFilter.class)
-//                .addFilterAfter(new JWTTokenGenerationFilter(), BasicAuthenticationFilter.class)
-//                .addFilterBefore(new JWTTokenValidationFilter(), BasicAuthenticationFilter.class)
+                .csrf().ignoringAntMatchers("/contact", "/register", "/h2-console/**")
+                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .and()
                 .authorizeHttpRequests()
                                     .antMatchers("/myAccount").hasRole("USER")
                                     .antMatchers("/myBalance").hasAnyRole("USER", "ADMIN")
@@ -57,53 +47,10 @@ public class ProjectSecurityConfig {
                                     .antMatchers("/myCards").hasRole("USER")
                                     .antMatchers("/user").authenticated()
                                     .antMatchers("/notices","/contact", "/register").permitAll()
- //               .anyRequest().denyAll()
-                                    .and().formLogin()
-                                    .and().httpBasic();
-//        http.formLogin();
-//        http.httpBasic();
+                                    .and().oauth2ResourceServer().jwt().jwtAuthenticationConverter(jwtAuthenticationConverter);
+
 //     Below line is for h2-console
         http.headers().frameOptions().disable();
         return http.build();
-    }
-
-//    Approach 1
-/*    @Bean
-    public InMemoryUserDetailsManager userDetailsService() {
-        UserDetails admin = User.withDefaultPasswordEncoder()
-                .username("admin")
-                .password("12345")
-                .authorities("admin")
-                .build();
-        UserDetails user = User.withDefaultPasswordEncoder()
-                .username("user")
-                .password("12345")
-                .authorities("read")
-                .build();
-        return new InMemoryUserDetailsManager(admin,user);
-    }  */
-
-//  Approach 2
-/*    @Bean
-    public InMemoryUserDetailsManager userDetailsService() {
-        UserDetails admin = User.withUsername("admin")
-                .password("12345")
-                .authorities("admin")
-                .build();
-        UserDetails user = User.withUsername("user")
-                .password("12345")
-                .authorities("read")
-                .build();
-        return new InMemoryUserDetailsManager(admin,user);
-    } */
-
-//    @Bean
-//    public UserDetailsService userDetailsService(DataSource dataSource) {
-//        return new JdbcUserDetailsManager(dataSource);
-//    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }
