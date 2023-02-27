@@ -20,7 +20,7 @@ public class KeyCloakRoleConverter implements Converter<Jwt, Collection<GrantedA
                return new ArrayList<>();
            }
 
-           Collection<GrantedAuthority> returnValue = ((List<String>) source.getClaims().get("roles")).stream()
+           Collection<GrantedAuthority> returnValue = ((List<String>) realmAccess.get("roles")).stream()
                    .map(roleName -> "ROLE_" + roleName)
                    .map(SimpleGrantedAuthority::new)
                    .collect(Collectors.toList());

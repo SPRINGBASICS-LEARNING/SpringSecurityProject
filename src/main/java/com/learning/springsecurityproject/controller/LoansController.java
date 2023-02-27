@@ -22,7 +22,6 @@ public class LoansController {
     private CustomerRepository customerRepository;
 
     @GetMapping("/myLoans")
-    @PostAuthorize("hasRole('ROOT')")
     public List<Loans> getLoanDetails(@RequestParam String email) {
         List<Customer> customers = customerRepository.findByEmail(email);
         if(customers!=null && !customers.isEmpty()) {
